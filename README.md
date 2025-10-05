@@ -1,73 +1,123 @@
-# React + TypeScript + Vite
+# HSK Flashcard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, interactive flashcard and quiz application for learning Chinese HSK vocabulary (Levels 1-7).
 
-Currently, two official plugins are available:
+## 🎯 Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Dual Learning Modes**:
+  - 🎴 **Flashcard Mode**: Interactive flip cards with 3D animations
+  - 📝 **Quiz Mode**: Multiple choice questions with instant feedback
+- **7 HSK Levels**: Complete vocabulary coverage from HSK 1 to HSK 7
+- **Reveal Answer**: Option to see answers without submitting (study mode)
+- **Progress Tracking**: Score tracking and quiz completion statistics
+- **Fully Responsive**: Works perfectly on mobile, tablet, and desktop
+- **Modern UI**: Clean, minimalist design with smooth animations
 
-## React Compiler
+## 🚀 Live Demo
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Visit the live application: [https://YOUR_USERNAME.github.io/HSKFlashCard/](https://YOUR_USERNAME.github.io/HSKFlashCard/)
 
-## Expanding the ESLint configuration
+## 🛠️ Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **React 19** with TypeScript
+- **Vite** for fast development and building
+- **Tailwind CSS** (via CDN) for styling
+- **Lucide React** for icons
+- **GitHub Pages** for deployment
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 📦 Installation
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+```bash
+# Clone the repository
+git clone https://github.com/YOUR_USERNAME/HSKFlashCard.git
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Navigate to project directory
+cd HSKFlashCard
+
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🌐 Deployment to GitHub Pages
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+This project is configured for automatic deployment to GitHub Pages using GitHub Actions.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Setup Steps:
+
+1. **Push your code to GitHub**:
+   ```bash
+   git add .
+   git commit -m "Initial commit"
+   git push origin main
+   ```
+
+2. **Enable GitHub Pages**:
+   - Go to your repository on GitHub
+   - Navigate to **Settings** → **Pages**
+   - Under **Source**, select **GitHub Actions**
+   - Save the settings
+
+3. **Automatic Deployment**:
+   - Every push to the `main` branch will trigger automatic deployment
+   - The workflow will build and deploy your app
+   - Your site will be available at: `https://YOUR_USERNAME.github.io/HSKFlashCard/`
+
+### Manual Deployment:
+
+You can also trigger deployment manually:
+- Go to **Actions** tab in your repository
+- Select "Deploy to GitHub Pages" workflow
+- Click "Run workflow"
+
+## 📁 Project Structure
+
 ```
+HSKFlashCard/
+├── .github/
+│   └── workflows/
+│       └── deploy.yml          # GitHub Actions workflow
+├── src/
+│   ├── components/
+│   │   ├── choose-mode.tsx     # Mode selection screen
+│   │   ├── level-selector.tsx  # HSK level picker
+│   │   ├── flashcard-view.tsx  # Flashcard interface
+│   │   └── quiz-view.tsx       # Quiz interface
+│   ├── hooks/
+│   │   ├── use-flashcard.ts    # Flashcard logic
+│   │   └── use-quiz.ts         # Quiz logic
+│   ├── interfaces/
+│   │   ├── Mode.ts             # Type definitions
+│   │   ├── HSKLevel.ts
+│   │   ├── IWord.ts
+│   │   ├── IFlashcard.ts
+│   │   ├── IQuizOption.ts
+│   │   └── IAnswer.ts
+│   ├── data/
+│   │   └── *.min.json          # HSK vocabulary data
+│   ├── App.tsx                 # Main app component
+│   └── main.tsx                # Entry point
+├── vite.config.ts              # Vite configuration
+└── package.json
+```
+
+## 🎨 Color Palette
+
+- **Mint**: `#DDF4E7` - Background
+- **Green**: `#67C090` - Primary actions
+- **Teal**: `#26667F` - Secondary elements
+- **Navy**: `#124170` - Text and accents
+
+## 📝 License
+
+MIT License - feel free to use this project for learning purposes!
+
+## 🤝 Contributing
+
+Contributions are welcome! Feel free to open issues or submit pull requests.
+
+---
+
+Made with ❤️ for HSK learners
