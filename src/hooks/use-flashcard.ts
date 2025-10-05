@@ -13,7 +13,7 @@ export const useFlashcard = (level: HSKLevel) => {
     const loadWords = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`/src/data/${level}.min.json`);
+        const response = await fetch(`/HSKFlashCard/data/${level}.min.json`);
         const data: IWord[] = await response.json();
         setWords(data);
         setCurrentIndex(0);
