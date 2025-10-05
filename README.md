@@ -50,27 +50,46 @@ This project is configured for automatic deployment to GitHub Pages using GitHub
 1. **Push your code to GitHub**:
    ```bash
    git add .
-   git commit -m "Initial commit"
+   git commit -m "Setup GitHub Pages deployment"
    git push origin main
    ```
 
-2. **Enable GitHub Pages**:
-   - Go to your repository on GitHub
-   - Navigate to **Settings** → **Pages**
-   - Under **Source**, select **GitHub Actions**
-   - Save the settings
+2. **Enable GitHub Pages** (IMPORTANT - Do this FIRST):
+   - Go to your repository on GitHub: `https://github.com/MarvelCollin/HSKFlashCard`
+   - Navigate to **Settings** → **Pages** (in left sidebar)
+   - Under **Source**, select **"GitHub Actions"** from the dropdown
+   - Click **Save**
+   - Wait a few seconds for it to confirm
 
-3. **Automatic Deployment**:
-   - Every push to the `main` branch will trigger automatic deployment
-   - The workflow will build and deploy your app
-   - Your site will be available at: `https://YOUR_USERNAME.github.io/HSKFlashCard/`
+3. **Run the Workflow**:
+   - Go to the **Actions** tab in your repository
+   - You should see "Deploy to GitHub Pages" workflow
+   - If it failed before, click **"Run workflow"** → **"Run workflow"** button
+   - Or push a new commit to trigger it automatically
+
+4. **Access Your Site**:
+   - Once deployed successfully, your site will be live at:
+   - `https://marvelcollin.github.io/HSKFlashCard/`
+   - The URL will also appear in the Actions tab after successful deployment
+
+### Troubleshooting:
+
+**If you get "Not Found" error:**
+1. Make sure GitHub Pages is enabled (Settings → Pages → Source: GitHub Actions)
+2. Check that your repository is public (or you have GitHub Pro for private repos)
+3. Wait 2-3 minutes after the workflow completes for DNS propagation
+
+**If the workflow fails:**
+- Check the Actions tab for error details
+- Ensure `package-lock.json` is committed to the repository
+- Re-run the workflow after fixing any issues
 
 ### Manual Deployment:
 
 You can also trigger deployment manually:
 - Go to **Actions** tab in your repository
 - Select "Deploy to GitHub Pages" workflow
-- Click "Run workflow"
+- Click **"Run workflow"** → Select `main` branch → **"Run workflow"**
 
 ## 📁 Project Structure
 
