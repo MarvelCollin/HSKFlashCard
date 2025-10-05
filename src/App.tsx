@@ -1,35 +1,79 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from 'react';
+import { ChooseMode } from './components/choose-mode';
+import { LevelSelector } from './components/level-selector';
+import { FlashcardView } from './components/flashcard-view';
+import { QuizView } from './components/quiz-view';
+import type { Mode } from './interfaces/Mode';
+import type { HSKLevel } from './interfaces/HSKLevel';
+
+type AppState = 'mode-selection' | 'level-selection' | 'learning';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [appState, setAppState] = useState<AppState>('mode-selection');
+  const [selectedMode, setSelectedMode] = useState<Mode | undefined>();
+  const [selectedLevel, setSelectedLevel] = useState<HSKLevel | undefined>();
+
+  const handleModeSelect = (mode: Mode) => {
+    setSelectedMode(mode);
+    setAppState('level-selection');
+  };
+
+  const handleLevelSelect = (level: HSKLevel) => {
+    setSelectedLevel(level);
+    setAppState('learning');
+  };
+
+  const handleBack = () => {
+    if (appState === 'learning') {
+      setAppState('level-selection');
+    } else if (appState === 'level-selection') {
+      setAppState('mode-selection');
+      setSelectedMode(undefined);
+    }
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div className="min-h-screen bg-mint">
+      {appState === 'mode-selection' && (
+        <div className="min-h-screen flex items-center justify-center">
+          <ChooseMode 
+            onSelectMode={handleModeSelect}
+            selectedMode={selectedMode}
+          />
+        </div>
+      )}
+
+      {appState === 'level-selection' && (
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="w-full">
+            <div className="text-center mb-8">
+              <button
+                onClick={handleBack}
+                className="text-teal hover:text-navy transition-colors font-medium"
+              >
+                ← Back to Mode Selection
+              </button>
+            </div>
+            <LevelSelector 
+              onSelectLevel={handleLevelSelect}
+              selectedLevel={selectedLevel}
+            />
+          </div>
+        </div>
+      )}
+
+      {appState === 'learning' && selectedMode && selectedLevel && (
+        <>
+          {selectedMode === 'flashcard' ? (
+            <FlashcardView level={selectedLevel} onBack={handleBack} />
+          ) : (
+            <QuizView level={selectedLevel} onBack={handleBack} />
+          )}
+        </>
+      )}
+    </div>
+  );
 }
 
-export default App
+export default App;
+
