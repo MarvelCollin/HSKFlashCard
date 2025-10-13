@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, X, RotateCcw, Trophy, Eye, Languages, Volume2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X, RotateCcw, Trophy, Eye, Languages, Volume2, Headphones, EyeOff } from 'lucide-react';
 import { useQuiz } from '../hooks/use-quiz';
 import type { HSKLevel } from '../interfaces/HSKLevel';
 import { useState, useEffect } from 'react';
@@ -31,11 +31,14 @@ export const QuizView = ({ level, onBack }: QuizViewProps) => {
   const [showTranslation, setShowTranslation] = useState(false);
   const [translation, setTranslation] = useState<{full: string, words: Array<{char: string, meaning: string}>}>({full: '', words: []});
   const [isTranslating, setIsTranslating] = useState(false);
+  const [isListeningMode, setIsListeningMode] = useState(false);
+  const [isCharacterRevealed, setIsCharacterRevealed] = useState(false);
 
   useEffect(() => {
     setShowTranslation(false);
     setTranslation({full: '', words: []});
     setIsTranslating(false);
+    setIsCharacterRevealed(false);
   }, [currentIndex]);
 
   const handleTranslate = async () => {
@@ -117,8 +120,24 @@ export const QuizView = ({ level, onBack }: QuizViewProps) => {
             <span className="font-medium">Exit</span>
           </button>
 
-          <div className="text-sm md:text-lg font-medium text-navy">
-            HSK Level {level}
+          <div className="flex flex-col items-center gap-2">
+            <div className="text-sm md:text-lg font-medium text-navy">
+              HSK Level {level}
+            </div>
+            <button
+              onClick={() => {
+                setIsListeningMode(!isListeningMode);
+                setIsCharacterRevealed(false);
+              }}
+              className={`flex items-center space-x-2 px-3 md:px-4 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium transition-all ${
+                isListeningMode
+                  ? 'bg-gradient-to-r from-green to-teal text-white'
+                  : 'bg-white text-navy hover:bg-mint'
+              }`}
+            >
+              <Headphones className="w-3 h-3 md:w-4 md:h-4" />
+              <span>{isListeningMode ? 'Listening Mode' : 'Normal Mode'}</span>
+            </button>
           </div>
 
           <div className="text-sm md:text-lg font-medium text-teal">
@@ -158,12 +177,32 @@ export const QuizView = ({ level, onBack }: QuizViewProps) => {
           <>
             <div className="bg-white rounded-2xl md:rounded-3xl card-shadow p-6 md:p-12 mb-6 md:mb-8">
               <div className="text-center space-y-4 md:space-y-6 mb-8 md:mb-12">
-                <div className="text-5xl md:text-7xl font-bold text-navy" style={{ fontFamily: 'SimSun, "Microsoft YaHei", "PingFang SC", STXihei, sans-serif' }}>
-                  {currentQuestion.character}
-                </div>
-                <div className="text-xl md:text-3xl text-teal font-medium">
-                  {currentQuestion.pinyin}
-                </div>
+                {isListeningMode && !isCharacterRevealed ? (
+                  <>
+                    <div className="text-3xl md:text-5xl text-gray-400 mb-4">
+                      <EyeOff className="w-16 h-16 md:w-24 md:h-24 mx-auto" />
+                    </div>
+                    <div className="text-base md:text-xl text-gray-500 font-medium">
+                      Listen and guess the character
+                    </div>
+                    <button
+                      onClick={() => setIsCharacterRevealed(true)}
+                      className="inline-flex items-center space-x-2 px-4 py-2 rounded-lg bg-navy text-white hover:bg-teal transition-all text-sm md:text-base mt-4"
+                    >
+                      <Eye className="w-4 h-4 md:w-5 md:h-5" />
+                      <span>Show Character</span>
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-5xl md:text-7xl font-bold text-navy" style={{ fontFamily: 'SimSun, "Microsoft YaHei", "PingFang SC", STXihei, sans-serif' }}>
+                      {currentQuestion.character}
+                    </div>
+                    <div className="text-xl md:text-3xl text-teal font-medium">
+                      {currentQuestion.pinyin}
+                    </div>
+                  </>
+                )}
                 <div className="flex items-center gap-3 justify-center">
                   <button
                     onClick={handlePlayAudio}
@@ -231,7 +270,12 @@ export const QuizView = ({ level, onBack }: QuizViewProps) => {
                   return (
                     <button
                       key={idx}
-                      onClick={() => submitAnswer(option.text)}
+                      onClick={() => {
+                        if (isListeningMode && !isCharacterRevealed) {
+                          setIsCharacterRevealed(true);
+                        }
+                        submitAnswer(option.text);
+                      }}
                       disabled={hasAnswered || isRevealed}
                       className={`
                         p-4 md:p-6 rounded-xl md:rounded-2xl transition-all duration-300 card-shadow
