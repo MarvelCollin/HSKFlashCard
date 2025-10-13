@@ -1,6 +1,7 @@
-import { ChevronLeft, ChevronRight, X, RotateCcw, Trophy, Eye } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X, RotateCcw, Trophy, Eye, Languages, Volume2 } from 'lucide-react';
 import { useQuiz } from '../hooks/use-quiz';
 import type { HSKLevel } from '../interfaces/HSKLevel';
+import { useState, useEffect } from 'react';
 
 interface QuizViewProps {
   level: HSKLevel;
@@ -26,6 +27,65 @@ export const QuizView = ({ level, onBack }: QuizViewProps) => {
   } = useQuiz(level);
 
   const currentAnswer = getCurrentAnswer();
+
+  const [showTranslation, setShowTranslation] = useState(false);
+  const [translation, setTranslation] = useState<{full: string, words: Array<{char: string, meaning: string}>}>({full: '', words: []});
+  const [isTranslating, setIsTranslating] = useState(false);
+
+  useEffect(() => {
+    setShowTranslation(false);
+    setTranslation({full: '', words: []});
+    setIsTranslating(false);
+  }, [currentIndex]);
+
+  const handleTranslate = async () => {
+    if (currentQuestion && !isTranslating) {
+      setIsTranslating(true);
+      try {
+        const fullResponse = await fetch(
+          `https://api.mymemory.translated.net/get?q=${encodeURIComponent(currentQuestion.character)}&langpair=zh|en`
+        );
+        const fullData = await fullResponse.json();
+        const fullTranslation = fullData.responseData?.translatedText || 'Translation unavailable';
+        
+        const characters = currentQuestion.character.split('');
+        const wordPromises = characters.map(async (char) => {
+          try {
+            const response = await fetch(
+              `https://api.mymemory.translated.net/get?q=${encodeURIComponent(char)}&langpair=zh|en`
+            );
+            const data = await response.json();
+            return {
+              char,
+              meaning: data.responseData?.translatedText || char
+            };
+          } catch {
+            return { char, meaning: char };
+          }
+        });
+        
+        const words = await Promise.all(wordPromises);
+        
+        setTranslation({ full: fullTranslation, words });
+        setShowTranslation(true);
+      } catch (error) {
+        setTranslation({ full: 'Translation unavailable', words: [] });
+        setShowTranslation(true);
+      } finally {
+        setIsTranslating(false);
+      }
+    }
+  };
+
+  const handlePlayAudio = () => {
+    if (currentQuestion) {
+      const utterance = new SpeechSynthesisUtterance(currentQuestion.character);
+      utterance.lang = 'zh-CN';
+      utterance.rate = 0.8;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utterance);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -98,12 +158,53 @@ export const QuizView = ({ level, onBack }: QuizViewProps) => {
           <>
             <div className="bg-white rounded-2xl md:rounded-3xl card-shadow p-6 md:p-12 mb-6 md:mb-8">
               <div className="text-center space-y-4 md:space-y-6 mb-8 md:mb-12">
-                <div className="text-5xl md:text-7xl font-bold text-navy">
+                <div className="text-5xl md:text-7xl font-bold text-navy" style={{ fontFamily: 'SimSun, "Microsoft YaHei", "PingFang SC", STXihei, sans-serif' }}>
                   {currentQuestion.character}
                 </div>
                 <div className="text-xl md:text-3xl text-teal font-medium">
                   {currentQuestion.pinyin}
                 </div>
+                <div className="flex items-center gap-3 justify-center">
+                  <button
+                    onClick={handlePlayAudio}
+                    className="inline-flex items-center space-x-2 px-4 py-2 rounded-lg bg-navy text-white hover:bg-teal transition-all text-sm md:text-base"
+                  >
+                    <Volume2 className="w-4 h-4 md:w-5 md:h-5" />
+                    <span>Listen</span>
+                  </button>
+                  <button
+                    onClick={handleTranslate}
+                    disabled={isTranslating}
+                    className="inline-flex items-center space-x-2 px-4 py-2 rounded-lg bg-teal text-white hover:bg-green transition-all text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Languages className="w-4 h-4 md:w-5 md:h-5" />
+                    <span>{isTranslating ? 'Translating...' : 'Translate'}</span>
+                  </button>
+                </div>
+                {showTranslation && translation.full && (
+                  <div className="mt-4 px-4 py-3 bg-green/10 rounded-lg border-2 border-green max-w-2xl mx-auto">
+                    <div className="text-sm md:text-base text-navy font-bold mb-3">
+                      Full: {translation.full}
+                    </div>
+                    {translation.words.length > 0 && (
+                      <div className="space-y-2">
+                        <div className="text-xs md:text-sm text-teal font-semibold">Word by word:</div>
+                        <div className="flex flex-wrap gap-2 justify-center">
+                          {translation.words.map((word, idx) => (
+                            <div key={idx} className="bg-white px-3 py-2 rounded-md shadow-sm">
+                              <div className="text-base md:text-lg font-bold text-navy" style={{ fontFamily: 'SimSun, "Microsoft YaHei", "PingFang SC", STXihei, sans-serif' }}>
+                                {word.char}
+                              </div>
+                              <div className="text-xs md:text-sm text-gray-600">
+                                {word.meaning}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
                 <div className="text-sm md:text-lg text-gray-600">
                   What does this character mean?
                 </div>
@@ -171,18 +272,19 @@ export const QuizView = ({ level, onBack }: QuizViewProps) => {
               )}
             </div>
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2 md:gap-4">
               <button
                 onClick={goToPrevious}
                 disabled={currentIndex === 0}
-                className="p-2 md:p-4 rounded-lg md:rounded-xl bg-white text-navy hover:bg-teal hover:text-white transition-all card-shadow disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-navy"
+                className="flex items-center space-x-1 md:space-x-2 px-3 md:px-4 py-2 md:py-3 rounded-lg md:rounded-xl bg-white text-navy hover:bg-teal hover:text-white transition-all card-shadow disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-navy text-xs md:text-base font-medium"
               >
-                <ChevronLeft className="w-6 h-6 md:w-8 md:h-8" />
+                <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
+                <span>Previous</span>
               </button>
 
-              <div className="bg-white rounded-lg md:rounded-xl px-4 md:px-6 py-2 md:py-3 card-shadow">
+              <div className="bg-white rounded-lg md:rounded-xl px-3 md:px-6 py-2 md:py-3 card-shadow">
                 <div className="text-xs md:text-sm text-teal font-medium">Score</div>
-                <div className="text-lg md:text-2xl font-bold text-navy">
+                <div className="text-base md:text-2xl font-bold text-navy">
                   {score.correct} / {score.total}
                 </div>
               </div>
@@ -190,9 +292,10 @@ export const QuizView = ({ level, onBack }: QuizViewProps) => {
               <button
                 onClick={goToNext}
                 disabled={currentIndex === totalQuestions - 1 || (!hasAnswered && !isRevealed)}
-                className="p-2 md:p-4 rounded-lg md:rounded-xl bg-white text-navy hover:bg-teal hover:text-white transition-all card-shadow disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-navy"
+                className="flex items-center space-x-1 md:space-x-2 px-3 md:px-4 py-2 md:py-3 rounded-lg md:rounded-xl bg-white text-navy hover:bg-teal hover:text-white transition-all card-shadow disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-navy text-xs md:text-base font-medium"
               >
-                <ChevronRight className="w-6 h-6 md:w-8 md:h-8" />
+                <span>Continue</span>
+                <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
               </button>
             </div>
           </>
